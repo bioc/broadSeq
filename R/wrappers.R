@@ -591,14 +591,14 @@ use_multDE <- function(deFun_list, return.df= FALSE ,se ,
 #' @examples
 volcanoPlot <- function(df,pValName,lFCName, sigThreshold=0.05, logFCThreshold = 1,
                         labelName=NULL, selectedLabel = NULL, palette = "nejm"){
-    df <- df %>% dplyr::mutate(padj=-log10(!!sym(pValName)),
+    df <- df %>% dplyr::mutate(padj_temp=-log10(!!sym(pValName)),
                               Significant = if_else((!!sym(pValName) < sigThreshold & !!sym(lFCName) > logFCThreshold),"UP",
                                                     if_else((!!sym(pValName) < sigThreshold & !!sym(lFCName) < -logFCThreshold),"DOWN",
                                                           "Not", missing="Not"), missing="Not"
                               ))
     df$Significant <- factor(df$Significant,levels = c("DOWN","UP","Not"))
     plot <- df %>%  ggscatter(
-            x = lFCName, y = "padj",
+            x = lFCName, y = "padj_temp",
             color = "Significant", palette =palette,
             title = "Volcano plot",
             label = labelName, repel = TRUE,label.rectangle=TRUE, show.legend=FALSE,
