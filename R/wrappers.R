@@ -583,27 +583,36 @@ use_multDE <- function(deFun_list, return.df= FALSE ,se ,
 #' @param selectedLabel which dots to highlight
 #' @param palette one of "npg" ,"aaas", "lancet", "jco", "ucscgb", "uchicago",
 #' "simpsons" and "nejm" or similar to viridis::cividis(3)
+#' @param color To color the points, default NULL to color based on significance 
+#'and logFold threshold otherwise must be a column name of df
 #'
 #' @return ggplot object
 #' @export
 #' @importFrom dplyr %>% left_join if_else
 #' @importFrom ggpubr ggscatter
 #' @examples
-volcanoPlot <- function(df,pValName,lFCName, sigThreshold=0.05, logFCThreshold = 1,
-                        labelName=NULL, selectedLabel = NULL, palette = "nejm"){
-    df <- df %>% dplyr::mutate(padj=-log10(!!sym(pValName)),
-                              Significant = if_else((!!sym(pValName) < sigThreshold & !!sym(lFCName) > logFCThreshold),"UP",
-                                                    if_else((!!sym(pValName) < sigThreshold & !!sym(lFCName) < -logFCThreshold),"DOWN",
-                                                          "Not", missing="Not"), missing="Not"
-                              ))
-    df$Significant <- factor(df$Significant,levels = c("DOWN","UP","Not"))
-    plot <- df %>%  ggscatter(
-            x = lFCName, y = "padj",
-            color = "Significant", palette =palette,
-            title = "Volcano plot",
-            label = labelName, repel = TRUE,label.rectangle=TRUE, show.legend=FALSE,
-            label.select = selectedLabel)+
-        labs(x = expression("log"[2]*"FC"), y = expression("-log"[10]*"p-value"))+
-        geom_abline(intercept = -log10(sigThreshold), slope = 0, linetype="dashed")
-    return(plot)
+volcanoPlot <- function(df, pValName, lFCName, 
+                        color=NULL, sigThreshold = 0.05, logFCThreshold = 1, 
+                        labelName = NULL, selectedLabel = NULL, palette = "nejm") 
+{
+  df <- df %>% dplyr::mutate(padj = -log10(!!sym(pValName)),
+                             Significant = if_else((!!sym(pValName) < sigThreshold &
+                                                      !!sym(lFCName) > logFCThreshold),
+                                                   "UP",
+                                                   if_else(
+                                                     (!!sym(pValName) <  sigThreshold &
+                                                        !!sym(lFCName) < -logFCThreshold
+                                                     ),"DOWN","Not",missing = "Not"
+                                                   ), missing = "Not"
+                             )
+  )
+  df$Significant <- factor(df$Significant, levels = c("DOWN", "UP", "Not"))
+  if(is.null(color)){ color <- "Significant"}
+  plot <- df %>% ggscatter(x = lFCName, y = "padj", color = color, 
+                           palette = palette, title = "Volcano plot", label = labelName, 
+                           repel = TRUE, label.rectangle = TRUE, show.legend = FALSE, 
+                           label.select = selectedLabel) + 
+    labs(x = expression("log"[2] * "FC"), y = expression("-log"[10] * "p-value")) + 
+    geom_abline(intercept = -log10(sigThreshold),  slope = 0, linetype = "dashed")
+  return(plot)
 }

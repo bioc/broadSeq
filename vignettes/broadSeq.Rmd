@@ -223,7 +223,7 @@ broadSeq::assay_plot(se, feature = c("Shh"),
 broadSeq::genes_plot(se, 
                      features = c("Shh","Edar"), 
                      facet.by = "symbol",
-                     x = "stage", assayName = "vst", fill="species", palette = "jco")
+                     x = "stage", assayName = "vst", color="species", palette = "jco")
 ```
 
 ## Pre-defined or custom color palette based on journals
@@ -236,22 +236,26 @@ be passed for coloring or filling by groups from metadata.
 jco <- broadSeq::genes_plot(se[,se$species == "Mouse"], 
                      features = c("Shh"), facet.by = "symbol", assayName =  "logCPM",
                      x = "stage",  fill="stage", add="dotplot", xlab = "", 
-                     title = "Journal of Clinical Oncology", palette = "jco") 
+                     add.params = list(size= 0.5), 
+                     caption = "Journal of Clinical Oncology", palette = "jco") 
 
 npg <- broadSeq::genes_plot(se[,se$species == "Mouse"], 
                      features = c("Shh"), facet.by = "symbol",assayName =  "logCPM",
-                     x = "stage", fill="stage", add="dotplot", xlab = "",
-                     title = "Nature Publishing Group", palette = "npg") 
+                     x = "stage", fill="stage", add="dotplot", xlab = "", 
+                     add.params = list(size= 0.5),
+                     caption = "Nature Publishing Group", palette = "npg") 
 
 aaas <- broadSeq::genes_plot(se[,se$species == "Mouse"], 
                      features = c("Shh"), facet.by = "symbol", assayName = "logCPM",
-                     x = "stage", fill="stage", add="dotplot", xlab = "",
-                     title = "Science", palette = "aaas")
+                     x = "stage", fill="stage", add="dotplot", xlab = "", 
+                     add.params = list(size= 0.5),
+                     caption = "Science", palette = "aaas")
 
 nejm <- broadSeq::genes_plot(se[,se$species == "Mouse"], 
                      features = c("Shh"), facet.by = "symbol", assayName = "logCPM",
-                     x = "stage", fill="stage", add="dotplot",  xlab = "",
-                     title = "New England Journal of Medicine",palette = "nejm")
+                     x = "stage", color="stage", add="dotplot",  xlab = "", 
+                     add.params = list(size= 0.5),
+                     caption = "New England \nJournal of Medicine",palette = "nejm")
 
 # ggarrange(jco,npg,aaas,nejm, 
 #           common.legend = TRUE,legend = "none",
@@ -505,7 +509,7 @@ head(result_Noiseq)
 pg <- broadSeq::genes_plot(se, x = "stage", assayName =  "counts",  
            features = result_Noiseq %>% dplyr::filter(rank <5) %>% rownames(),
            fill="stage", facet.by = "symbol",
-           palette="jco", add = "dotplot")+rotate_x_text()
+           palette="jco", add = "dotplot") +rotate_x_text()
 
 pg_sc <- ggscatter(result_Noiseq, x="Bud_mean", y="Cap_mean",color = "prob")+ 
     scale_x_log10()+scale_y_log10()
@@ -605,6 +609,18 @@ multi_result %>% broadSeq::volcanoPlot(
     labelName = "symbol",
     palette = c("purple","orange","grey"),
     selectedLabel = list(criteria = "(`x` > 5 | `x` < -2) & (`y` > 10)")
+) +xlim(-7.5,7.5)
+```
+
+Annotating the genes in the volcano plot.
+```{r warning=FALSE,fig.width=6,fig.height=6,eval=TRUE}
+multi_result %>% broadSeq::volcanoPlot(
+    pValName = "deseq2_padj",
+    lFCName = "deseq2_log2FoldChange",
+    labelName = "symbol",
+    color = "Class",
+    palette = "lancet",
+    selectedLabel = list(criteria = "(Class %in% c('Progression','Shape')) & (`y` > 10)")
 ) +xlim(-7.5,7.5)
 ```
 
