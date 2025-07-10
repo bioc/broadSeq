@@ -305,6 +305,7 @@ use_DELocal <- function(se, colData_id, control, treatment,rank=FALSE,...){
             SummarizedExperiment::assays(se)[nuOrder]
     }
     se <- se[,se[[colData_id]] %in% c(control,treatment)]
+    se[[colData_id]] <- factor(se[[colData_id]],levels = c(control, treatment))
 
     DELocal_result <- DELocal::DELocal(pSmrExpt = se, # Genes without neighbours are missing
                               nearest_neighbours = 5, pDesign =eval(parse(text=formula_str)),
