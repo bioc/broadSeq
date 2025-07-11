@@ -351,30 +351,35 @@ use_DELocal <- function(se, colData_id, control, treatment,rank=FALSE,...){
 #'            colData_id = "stage", control = "Bud", treatment = "Cap",
 #'            rank = TRUE)
 use_EBSeq <- function(se, colData_id, control, treatment, rank=FALSE,...){
-    checkNameSpace("EBSeq")
-    control_names <- se[,se[[colData_id]]==control] %>% colnames()
-    treatment_names <- se[,se[[colData_id]]==treatment] %>% colnames()
-    tabla <- SummarizedExperiment::assays(se)[["counts"]][,c(control_names,treatment_names)]
-    Sizes <- EBSeq::MedianNorm(tabla)
-
-    EBOut <- EBSeq::EBTest(Data=tabla,
-                 Conditions=factor(c(rep(control,length(control_names)),
-                                     rep(treatment,length(treatment_names))),
-                                      levels = c(control,treatment)),
-                 sizeFactors=Sizes, maxround=5)
-    EBDERes <- EBSeq::GetDEResults(EBOut, ...)
-    ##Calculate FC
-    FC <- EBSeq::PostFC(EBOut, SmallNum = 0.01)
-
-    ##Obtain probabilities
-    res <- data.frame(PPEE=EBDERes$PPMat[,"PPEE"] ,PPDE=EBDERes$PPMat[,"PPDE"],Status=EBDERes$Status,
-                      Direction = FC$Direction) #,PostFC=FC$PostFC,RealFC=FC$RealFC
-    if(rank){
-        res %>% dplyr::arrange(desc(PPDE)) %>%
-            dplyr::mutate(rank = 1:dplyr::n())
-    }else{
-        res
-    }
+  checkNameSpace("EBSeq")
+  control_names <- se[,se[[colData_id]]==control] %>% colnames()
+  treatment_names <- se[,se[[colData_id]]==treatment] %>% colnames()
+  tabla <- SummarizedExperiment::assays(se)[["counts"]][,c(control_names,treatment_names)]
+  Sizes <- EBSeq::MedianNorm(tabla)
+  
+  EBOut <- EBSeq::EBTest(Data=tabla,
+                         Conditions=factor(c(rep(control,length(control_names)),
+                                             rep(treatment,length(treatment_names))),
+                                           levels = c(treatment, control)),
+                         sizeFactors=Sizes, maxround=5, 
+                         QtrmCut = -1) ## to get all the transcripts
+  EBDERes <- EBSeq::GetDEResults(EBOut, ...)
+  ##Calculate FC
+  FC <- EBSeq::PostFC(EBOut, SmallNum = 0.01)
+  
+  ##Obtain probabilities
+  res <- data.frame(PPEE=EBDERes$PPMat[,"PPEE"] ,PPDE=EBDERes$PPMat[,"PPDE"],Status=EBDERes$Status,
+                    RealFC=FC$RealFC) #,PostFC=FC$PostFC, Direction = FC$Direction
+  # Do not use FC$Direction which is single value
+  res <- res %>% dplyr::mutate(
+    signedRealFC = ifelse((RealFC < 1 & Status == "DE"), -(1/RealFC), RealFC))
+  
+  if(rank){
+    res %>% dplyr::arrange(desc(PPDE)) %>%
+      dplyr::mutate(rank = 1:dplyr::n())
+  }else{
+    res
+  }
 }
 
 
