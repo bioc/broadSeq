@@ -552,11 +552,10 @@ It is possible to execute all DE methods together and get aggregated results in 
 
 ```{r warning=FALSE,results="hide", fig.keep = "none"}
 # First define a named list of functions
-funs <- list(limma_trend = use_limma_trend, limma_voom = use_limma_voom,
+funs <- list(DELocal = use_DELocal, deseq2 = use_deseq2, 
+             limma_trend = use_limma_trend, limma_voom = use_limma_voom,
              edgeR_exact = use_edgeR_exact, edgeR_glm = use_edgeR_GLM,
-             deseq2 = use_deseq2, 
-             DELocal = use_DELocal, noiseq = use_NOIseq, 
-             EBSeq = use_EBSeq) 
+             noiseq = use_NOIseq, EBSeq = use_EBSeq) 
 
 
 multi_result <- broadSeq::use_multDE(
