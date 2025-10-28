@@ -269,7 +269,8 @@ plotAnyPC <- function(computedPCA,x =1 ,y = 2, ...){
     p <- computedPCA$pc_scores %>% ggscatter(x = pc_x, y = pc_y,...)
     if(!is.null(dottedArg$shape) ) {
         computedPCA$pc_scores[,dottedArg$shape] <- factor(computedPCA$pc_scores[,dottedArg$shape])
-        p <- p + scale_shape_manual(values=seq_len(computedPCA$pc_scores[,dottedArg$shape]))
+        p <- p + scale_shape_manual(values=seq_len( 
+          length(unique(computedPCA$pc_scores[,dottedArg$shape]))))
     }
     return(
         p %>%
