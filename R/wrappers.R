@@ -425,8 +425,8 @@ use_NOIseq <- function(se, colData_id, control, treatment, rank=FALSE, ...){
     tabla <- SummarizedExperiment::assays(se)[["counts"]][,c(control_names,treatment_names)] %>% as.data.frame()
 
     expt_factors <- data.frame(Condition = factor(c(
-        rep(treatment, length(treatment_names)),
-        rep(control, length(control_names))
+        rep(control, length(control_names)),
+        rep(treatment, length(treatment_names))
     )))
     colnames(expt_factors) <- colData_id
     expt_data <- NOISeq::readData(data = tabla, factors = expt_factors)
