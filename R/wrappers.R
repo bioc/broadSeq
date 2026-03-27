@@ -427,7 +427,7 @@ use_NOIseq <- function(se, colData_id, control, treatment, rank=FALSE, ...){
     expt_factors <- data.frame(Condition = factor(c(
         rep(control, length(control_names)),
         rep(treatment, length(treatment_names))
-    )))
+    ), levels = c(treatment,control)))
     colnames(expt_factors) <- colData_id
     expt_data <- NOISeq::readData(data = tabla, factors = expt_factors)
 
